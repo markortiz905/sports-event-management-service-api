@@ -1,0 +1,60 @@
+plugins {
+	id 'org.springframework.boot' version '2.3.7.RELEASE'
+	id 'io.spring.dependency-management' version '1.0.9.RELEASE'
+	id 'java'
+	id 'idea'
+}
+
+apply plugin : 'eclipse'
+
+group = 'com.system.virus'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '1.8'
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-web'//added web module
+	implementation 'org.springframework.boot:spring-boot-starter-log4j2'
+
+	implementation 'org.springdoc:springdoc-openapi-ui:1.5.2'
+
+	implementation 'org.springframework.boot:spring-boot-starter-cache'
+
+	//runtimeOnly 'org.springframework.boot:spring-boot-devtools'//make sure you configure IDE to build automatically
+
+	if (System.getenv("SPRING_PROFILES_ACTIVE") != null &&
+			(System.getenv("SPRING_PROFILES_ACTIVE").equals("dev") || System.getenv("SPRING_PROFILES_ACTIVE").equals("junit"))) {
+		runtimeOnly 'com.h2database:h2'
+	} else {
+		//dockerized
+		implementation 'mysql:mysql-connector-java'
+		implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+	}
+
+
+	//added due to springboot dep changes from 2.2.x to 2.3.x
+	//https://stackoverflow.com/questions/61959918/spring-boot-validations-stopped-working-after-upgrade-from-2-2-5-to-2-3-0
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+	//lombok
+	compileOnly 'org.projectlombok:lombok:1.18.16'
+	annotationProcessor 'org.projectlombok:lombok:1.18.16'
+
+	testImplementation('org.springframework.boot:spring-boot-starter-test') {
+		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+	}
+	testCompileOnly 'org.projectlombok:lombok:1.18.16'
+	testAnnotationProcessor 'org.projectlombok:lombok:1.18.16'
+}
+
+configurations {
+	compile.exclude module: 'spring-boot-starter-logging'
+}
+
+test {
+	useJUnitPlatform()
+}
